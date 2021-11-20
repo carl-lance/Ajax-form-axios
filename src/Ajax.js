@@ -112,22 +112,25 @@ class Ajax {
         if (options.jsonp !== undefined) params.jsonp = options.jsonp;
         if (options.jsonCallback !== undefined) params.jsonCallback = options.jsonCallback;
 
-        let resultXHR = null;
+        let resultXHR = null,resultData=null;
         params.beforeSend = function (xhr) {
             options.before && options.before();
             resultXHR = xhr;
             return !options.cleanSend;
         };
         params.success = function (data) {
-            responseInterceptor({data, status: resultXHR.status, statusText: resultXHR.statusText});
+            resultData={data, status: resultXHR.status, statusText: resultXHR.statusText};
+            responseInterceptor(resultData);
         }
         params.error = function (errorMsg) {
-            responseInterceptor({status: errorMsg.status, statusText: errorMsg.statusText});
+            resultData={status: errorMsg.status, statusText: errorMsg.statusText};
+            responseInterceptor(resultData);
         }
 
         //发送请求
         ajax(params);
 
+        if (params.async===false)return resultData;
     }
 
 }

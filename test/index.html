@@ -13,7 +13,7 @@
     import Ajax from "../build/ajax.js";
 
 
-    const TokenKey = 'H3DBuilder-Token'
+    const TokenKey = 'Token'
 
     function getToken() {
         return Cookies.get(TokenKey)
@@ -23,52 +23,54 @@
         return Cookies.set(TokenKey, token)
     }
 
-    const target=Ajax.createInstance({
+    const target = Ajax.createInstance({
         baseURL: '/api',
-        timeOut:1000,
-        crossDomain:true,
-        headers:{
-            'Content-Type':'application/json;charset=UTF-8;'
+        timeOut: 1000,
+        crossDomain: true,
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8;'
         },
-        xhrFields:{
+        xhrFields: {
             withCredentials: true
         }
     });
 
     target.interceptors.request.use(function (config) {
-        config.headers['isToken']=false;
+        config.headers['isToken'] = false;
         // 是否需要设置 token
         const isToken = (config.headers || {}).isToken === true
         if (getToken() && !isToken) {
             config.headers['Authorization'] = 'Bearer ' + getToken() // 让每个请求携带自定义token 请根据实际情况自行修改
         }
-        config.data['TIME']=new Date().getTime();
+        config.data['TIME'] = new Date().getTime();
         console.log(config)
         return config;
     })
 
     target.interceptors.response.use(function (response) {
         console.log(response);
-        response=response.data;
+        response = response.data;
         return response;
     })
 
-    target({
-        url:'http://localhost:8081/login',
-        type:'post',
-
-        data:{
-          username:'admin',
-          password:'123456'
+    const data=target({
+        url: 'http://localhost:8081/login',
+        type: 'post',
+        async: false,
+        data: {
+            username: 'admin',
+            password: '123456'
         },
-        success(res){
-            console.log('success',res)
+        success(res) {
+            console.log('success', res)
             setToken(res.token);
         },
-        error(err){
-            console.log('err',err)
+        error(err) {
+            console.log('err', err)
         }
     })
+
+    console.log('data',data)
 
 
 </script>
